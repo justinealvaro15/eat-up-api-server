@@ -1,8 +1,8 @@
 const MongoClient = require('mongodb').MongoClient;
-const express = require('express')
+const express = require('express');
 const api = express();
-const cors = require('cors')
-const date = require('date-and-time');
+const cors = require('cors');
+const moment = require('moment');
 
 // create connection to database
 const dbUsername = 'admin';
@@ -22,7 +22,7 @@ const serverPort = 3000;
 
 api.use(cors())
 api.use(function (req, res, next) {
-  console.log(`[${Date.now()}]: ${req.url}`);
+  console.log(`[${moment().format('MMMM Do YYYY, h:mm:ss a')}]: ${req.url}`);
 
   next();
 })
@@ -30,6 +30,36 @@ api.use(function (req, res, next) {
 // configure routes for api
 api.get('/api/shops', (request, response) => {
   database.collection('shops').find().toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+api.get('/api/shops/topten', (request, response) => {
+  database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
+    if (err) throw err;
+
+    // result.sort((shopA, shopB) => {
+    //   shopA.fe_avg_rating = shopA.fe_avg_rating || 0;
+    //   shopB.fe_avg_rating = shopB.fe_avg_rating || 0;
+
+    //   if (shopA.fe_avg_rating > shopB.fe_avg_rating) {
+    //     return -1;
+    //   }
+    //   if (shopA.fe_avg_rating < shopB.fe_avg_rating) {
+    //     return 1;
+    //   }
+
+    //   return 0;
+    // });
+
+    response.send(result);
+  })
+});
+
+api.get('/api/shops/newest', (request, response) => {
+  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
     if (err) throw err;
 
     response.send(result);
