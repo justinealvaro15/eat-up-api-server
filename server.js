@@ -37,7 +37,7 @@ api.get('/api/shops', (request, response) => {
 });
 
 api.get('/api/shops/topten', (request, response) => {
-  database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
+  database.collection('shops').find().sort({ fe_avg_rating: -1 }).toArray((err, result) => {
     if (err) throw err;
 
     // result.sort((shopA, shopB) => {
@@ -59,7 +59,7 @@ api.get('/api/shops/topten', (request, response) => {
 });
 
 api.get('/api/shops/newest', (request, response) => {
-  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
+  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).toArray((err, result) => {
     if (err) throw err;
 
     response.send(result);
@@ -94,83 +94,3 @@ api.get('/api/shops/:shopId/consumables', (request, response) => {
 
 api.listen(serverPort, '0.0.0.0');
 console.log(`Server listening at port ${serverPort}`);
-
-
-// NOTES
-// console.log(`Connection to database successful!`);
-// // GET DATA
-// const query1 = {
-//   _id: '0002'
-// };
-// database.collection('consumables').find().toArray((err, result) => {
-//   if (err) throw err;
-
-//   console.log(result);
-// });
-
-// database.collection('shops').find().toArray((err, result) => {
-//   if (err) throw err;
-
-//   console.log(result);
-// });
-
-// // // UPDATE DATA
-// // const query2 = {
-// //   _id: '0002'
-// // };
-
-// // const newval2 = {
-// //   $set: {
-// //     type: 'Food',
-// //     price: 30,
-// //     name: 'Dalandan',
-// //     amount: '300mL'
-// //   }
-// // };
-
-
-// // database.collection('consumables').updateOne(query2, newval2, (err, result) => {
-// //   if (err) throw err;
-
-// //   console.log('Updated successfully!');
-// // });
-
-// // DELETE DATA
-// const query3 = {
-//   _id: '0003'
-// };
-
-// database.collection('shops').deleteOne(query3, (err, result) => {
-//   if (err) throw err;
-
-//   console.log('Deleted successfully!');
-// });
-
-// // ADD DATA
-// const addval1 = {
-//   _id: '0003',
-//   name: 'Tita Carmen\'s',
-//   type: 'Stall',
-//   estimatedAddress: 'Magsaysay St., Diliman, Quezon City, Metro Manila',
-//   contact: {person: 'Carmen Olivares', number: '09921334412'},
-//   operation: {hour: null, days: null},
-//   consumables_id: ['0002', '0003']
-// };
-
-// database.collection('shops').insertOne(addval1, (err, result) => {
-//   if (err) throw err;
-
-//   console.log('Inserted successfully!!');
-// });
-
-// // database.collection('shops').find().toArray((err, result) => {
-// //   if (err) throw err;
-
-// //   console.log(result);
-// // });
-
-// database.collection('shops').find().toArray((err, result) => {
-//   if (err) throw err;
-
-//   console.log(result);
-// });
