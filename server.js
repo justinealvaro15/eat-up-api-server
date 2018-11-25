@@ -37,7 +37,7 @@ api.get('/api/shops', (request, response) => {
 });
 
 api.get('/api/shops/topten', (request, response) => {
-  database.collection('shops').find().sort({ fe_avg_rating: -1 }).toArray((err, result) => {
+  database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
     if (err) throw err;
 
     // result.sort((shopA, shopB) => {
@@ -59,7 +59,7 @@ api.get('/api/shops/topten', (request, response) => {
 });
 
 api.get('/api/shops/newest', (request, response) => {
-  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).toArray((err, result) => {
+  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
     if (err) throw err;
 
     response.send(result);
