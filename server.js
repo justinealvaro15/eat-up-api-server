@@ -3,7 +3,7 @@ const express = require('express');
 const api = express();
 const cors = require('cors');
 const moment = require('moment');
-
+const bodyParser = require('body-parser');
 // create connection to database
 const dbUsername = 'admin';
 const dbPassword = 'admin123';
@@ -88,7 +88,62 @@ api.get('/api/shops/:shopId/consumables', (request, response) => {
   })
 });
 
+api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
+  console.log((request.body));
+  console.log((request.body.user.name));
+  console.log((request.params.shopId));
 
+  // response.send()
+  const query = {
+    fe_id: request.params.shopId
+  }
+  database.collection('shops').find(query).toArray((err, _result) => {
+    if (err) throw err;
+
+    if (_result.length > 0) {
+      const result = _result[0];
+      console.log(result)
+      const group = request.body.addedMenu.group;
+      const type =  request.body.addedMenu.type;
+      const menuTypeList = result[group][type];
+
+      if (!menuTypeList) {
+        result[group][type] = [];
+      }
+
+      const newMenu = {
+        c_name: request.body.addedMenu.name,
+        price: request.body.addedMenu.price,
+        c_avg_rating: 0,
+        username: request.body.user.name
+      }
+
+      if (request.body.addedMenu.amount) {
+        newMenu.amount = request.body.addedMenu.amount;
+      }
+
+      result[group][type].push(newMenu);
+
+      database.collection('shops').updateOne(
+        { fe_id: request.params.shopId },
+        {
+          $set: result
+        }, () => {
+          response.send(result);
+        }
+      )
+      
+    } else {
+      response.err(`No shop with id ${request.params.shopId} was found`);
+    }
+  })
+  
+});
+
+api.post('/api/shops/:shopId/beverages', bodyParser.json(), (request, response) => {
+  console.log((request.body));
+  response.send()
+});
 
 // start server
 
