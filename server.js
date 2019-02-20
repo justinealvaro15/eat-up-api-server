@@ -77,21 +77,21 @@ api.get('/api/shops/:shopId', (request, response) => {
   })
 });
 
-api.get('/api/shops/:shopId/consumables', (request, response) => {
-  const query = {
-    shopId: request.params.shopId
-  }
-  database.collection('consumables').find(query).toArray((err, result) => {
-    if (err) throw err;
+// api.get('/api/shops/:shopId/consumables', (request, response) => {
+//   const query = {
+//     shopId: request.params.shopId
+//   }
+//   database.collection('consumables').find(query).toArray((err, result) => {
+//     if (err) throw err;
 
-    response.send(result);
-  })
-});
+//     response.send(result);
+//   })
+// });
 
 api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
-  console.log((request.body));
-  console.log((request.body.user.name));
-  console.log((request.params.shopId));
+  // console.log((request.body));
+  // console.log((request.body.user.name));
+  // console.log((request.params.shopId));
 
   // response.send()
   const query = {
@@ -108,7 +108,7 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
       const menuTypeList = result[group][type];
 
       if (!menuTypeList) {
-        result[group][type] = [];
+        result[group][type] = []; 
       }
 
       const newMenu = {
@@ -140,9 +140,47 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   
 });
 
-api.post('/api/shops/:shopId/beverages', bodyParser.json(), (request, response) => {
-  console.log((request.body));
-  response.send()
+api.get('/api/locations/:bldgId', (request, response) => {
+  const query = {
+    id: request.params.bldgId
+  }
+  database.collection('location-search').find(query).toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+api.get('/api/reviews/:shopId', (request, response) => {
+  const query = {
+    fe_id: request.params.shopId
+  }
+  database.collection('reviews').find(query).sort({ date: -1 }).toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
+  // console.log((request.body));
+
+  const newReview = {
+    user_id: request.body.user.id,
+    fe_id: request.params.shopId,
+    firstName: request.body.user.firstName,
+    lastName: request.body.user.lastName,
+    photoUrl: request.body.user.photoUrl,
+    rating: request.body.addedReview.rating,
+    review: request.body.addedReview.review,
+    date: moment().format('MMMM Do YYYY, h:mm:ss a')
+  }
+  // response.send(newReview);
+  console.log(newReview);
+  database.collection('reviews').insertOne(newReview, (err, result) => {
+    if(err) throw err;
+  });
+  // response.send()
 });
 
 // start server
