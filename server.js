@@ -140,13 +140,13 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   
 });
 
-api.get('/api/locations/:bldgId', (request, response) => {
+api.get('/api/location/:bldgId', (request, response) => {
   const query = {
     id: request.params.bldgId
   }
   database.collection('location-search').find(query).toArray((err, result) => {
     if (err) throw err;
-
+    console.log(result);
     response.send(result);
   })
 });
