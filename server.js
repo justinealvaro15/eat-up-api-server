@@ -88,12 +88,53 @@ api.get('/api/shops/:shopId', (request, response) => {
 //   })
 // });
 
-api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
-  // console.log((request.body));
-  // console.log((request.body.user.name));
-  // console.log((request.params.shopId));
+api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
+  console.log(request.params);
+  console.log(request.body);
 
-  // response.send()
+  if (!request.body.updatedMenu) {
+    response.err('Invalid query, missing updatedMenu object');
+  }
+
+  const group = request.body.updatedMenu.group;
+  const type = request.body.updatedMenu.type;
+  const updatedMenu = request.body.value || [];
+  if (!group) {
+    response.err('Invalid query, missing updatedMenu.group');
+  }
+  if (!type) {
+    response.err('Invalid query, missing updatedMenu.type');
+  }
+
+  const query = {
+    fe_id: request.params.shopId
+  }
+
+  const update = {};
+
+  // update[group] = {};
+  update[`${group}.${type}`] = updatedMenu;
+
+  database.collection('shops').updateOne(
+    query,
+    {
+      $set: update
+    },
+    (result) => {
+      response.send(result);
+    }
+  )
+});
+
+// api.put('/api/shops/:shopId', bodyParser.json(), (request, response) => {
+//   const query = {
+//     fe_id: request.params.shopId
+//   }
+
+//   database.collection('shops').updateOne(query)
+// });
+
+api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   const query = {
     fe_id: request.params.shopId
   }
@@ -102,7 +143,7 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
 
     if (_result.length > 0) {
       const result = _result[0];
-      console.log(result)
+      // console.log(result)
       const group = request.body.addedMenu.group;
       const type =  request.body.addedMenu.type;
       const menuTypeList = result[group][type];
@@ -137,7 +178,6 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
       response.err(`No shop with id ${request.params.shopId} was found`);
     }
   })
-  
 });
 
 api.get('/api/location/:bldgId', (request, response) => {
@@ -147,6 +187,7 @@ api.get('/api/location/:bldgId', (request, response) => {
   database.collection('location-search').find(query).toArray((err, result) => {
     if (err) throw err;
     console.log(result);
+
     response.send(result);
   })
 });
