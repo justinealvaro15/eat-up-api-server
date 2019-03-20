@@ -236,7 +236,6 @@ api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
     query,
     {
       $set: {
-        photoUrl: request.body.user.photoUrl,
         rating: request.body.rating,
         review: request.body.review,
         date: moment().format('lll')
