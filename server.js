@@ -28,6 +28,8 @@ api.use(function (req, res, next) {
 })
 
 // configure routes for api
+
+//// GET ALL SHOPS
 api.get('/api/shops', (request, response) => {
   database.collection('shops').find().toArray((err, result) => {
     if (err) throw err;
@@ -36,6 +38,7 @@ api.get('/api/shops', (request, response) => {
   })
 });
 
+//// GET SHOPS SORTED BY RATINGS
 api.get('/api/shops/topten', (request, response) => {
   database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
     if (err) throw err;
@@ -58,6 +61,7 @@ api.get('/api/shops/topten', (request, response) => {
   })
 });
 
+//// GET SHOPS SORTED BY SHOP ID
 api.get('/api/shops/newest', (request, response) => {
   database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
     if (err) throw err;
@@ -66,6 +70,7 @@ api.get('/api/shops/newest', (request, response) => {
   })
 });
 
+//// GET INFORMATION OF SHOP
 api.get('/api/shops/:shopId', (request, response) => {
   const query = {
     fe_id: request.params.shopId
@@ -77,17 +82,7 @@ api.get('/api/shops/:shopId', (request, response) => {
   })
 });
 
-// api.get('/api/shops/:shopId/consumables', (request, response) => {
-//   const query = {
-//     shopId: request.params.shopId
-//   }
-//   database.collection('consumables').find(query).toArray((err, result) => {
-//     if (err) throw err;
-
-//     response.send(result);
-//   })
-// });
-
+//// EDIT MENU ITEM
 api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   console.log(request.params);
   console.log(request.body);
@@ -112,7 +107,6 @@ api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
 
   const update = {};
 
-  // update[group] = {};
   update[`${group}.${type}`] = updatedMenu;
 
   database.collection('shops').updateOne(
@@ -126,14 +120,7 @@ api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   )
 });
 
-// api.put('/api/shops/:shopId', bodyParser.json(), (request, response) => {
-//   const query = {
-//     fe_id: request.params.shopId
-//   }
-
-//   database.collection('shops').updateOne(query)
-// });
-
+//// ADD MENU ITEM
 api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   const query = {
     fe_id: request.params.shopId
@@ -180,6 +167,7 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   })
 });
 
+//// GET SHOPS BY LOCATION
 api.get('/api/location/:bldgId', (request, response) => {
   const query = {
     id: request.params.bldgId
@@ -192,6 +180,7 @@ api.get('/api/location/:bldgId', (request, response) => {
   })
 });
 
+//// GET REVIEWS
 api.get('/api/reviews/:shopId', (request, response) => {
   const query = {
     fe_id: request.params.shopId
@@ -203,8 +192,8 @@ api.get('/api/reviews/:shopId', (request, response) => {
   })
 });
 
+//// ADD REVIEW
 api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
-  // console.log((request.body));
 
   const newReview = {
     user_id: request.body.user.id,
@@ -214,15 +203,51 @@ api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
     photoUrl: request.body.user.photoUrl,
     rating: request.body.addedReview.rating,
     review: request.body.addedReview.review,
-    date: moment().format('MMMM Do YYYY, h:mm:ss a')
+    date: moment().format('lll')
   }
-  // response.send(newReview);
+
   console.log(newReview);
   database.collection('reviews').insertOne(newReview, (err, result) => {
     if(err) throw err;
   });
-  // response.send()
 });
+
+//// EDIT REVIEW
+api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
+  // console.log(request.params);
+  console.log(request.body);
+
+  const rating = request.body.rating;
+  const review = request.body.review;
+  if(!rating) {
+    response.err('Invalid query, missing rating');
+  }
+  if(!review) {
+    response.err('Invalid query, missing review');
+  }
+
+  const query = {
+    fe_id: request.params.shopId,
+    user_id: request.body.user.id
+  }
+
+  console.log(query);
+  database.collection('reviews').updateOne(
+    query,
+    {
+      $set: {
+        photoUrl: request.body.user.photoUrl,
+        rating: request.body.rating,
+        review: request.body.review,
+        date: moment().format('lll')
+      }
+    },
+    (result) => {
+      response.send(result);
+    }
+  )
+});
+
 
 // start server
 
