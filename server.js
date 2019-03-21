@@ -192,6 +192,35 @@ api.get('/api/reviews/:shopId', (request, response) => {
   })
 });
 
+function updateShopRating(shopId) {
+  const query = {
+    fe_id: shopId
+  }
+  database.collection('reviews').find(query).toArray((err, result) => {
+    if (err) throw err;
+
+    let sum = 0;
+    
+    result.forEach((review) => {
+      sum += review.rating;
+    });
+    
+    const average = sum/result.length;
+
+    database.collection('shops').updateOne(
+      query,
+      {
+        $set: {
+          fe_avg_rating: average
+        }
+      },
+      (result) => {
+        // response.send(result);
+      }
+    );
+  })
+};
+
 //// ADD REVIEW
 api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
 
@@ -209,6 +238,8 @@ api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
   console.log(newReview);
   database.collection('reviews').insertOne(newReview, (err, result) => {
     if(err) throw err;
+
+    updateShopRating(request.params.shopId);
   });
 });
 
@@ -242,6 +273,7 @@ api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
       }
     },
     (result) => {
+      updateShopRating(request.params.shopId);
       response.send(result);
     }
   )
