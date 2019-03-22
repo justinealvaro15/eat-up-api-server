@@ -38,6 +38,16 @@ api.get('/api/shops', (request, response) => {
   })
 });
 
+////GET USERS 
+api.get('/api/users', (request, response) => {
+  database.collection('users').find().toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+
 //// GET SHOPS SORTED BY RATINGS
 api.get('/api/shops/topten', (request, response) => {
   database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
