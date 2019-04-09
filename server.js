@@ -288,7 +288,14 @@ api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
     }
   )
 });
+////GET ADMIN
+api.get('/api/admin', (request, response) => {
+  database.collection('admin').find().toArray((err, result) => {
+    if (err) throw err;
 
+    response.send(result);
+  })
+});
 //ADD ADMIN
 api.post('/api/admin', bodyParser.json(), (request,response)=> {
   const newAdmin = {
