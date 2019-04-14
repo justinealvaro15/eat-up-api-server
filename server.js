@@ -38,6 +38,16 @@ api.get('/api/shops', (request, response) => {
   })
 });
 
+////GET USERS 
+api.get('/api/users', (request, response) => {
+  database.collection('users').find().toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+
 //// GET SHOPS SORTED BY RATINGS
 api.get('/api/shops/topten', (request, response) => {
   database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
@@ -287,7 +297,35 @@ api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
     }
   )
 });
+////GET ADMIN
+api.get('/api/admin', (request, response) => {
+  database.collection('admin').find().toArray((err, result) => {
+    if (err) throw err;
 
+    response.send(result);
+  })
+});
+//ADD ADMIN
+api.post('/api/admin', bodyParser.json(), (request,response)=> {
+  const newAdmin = {
+    email: request.body.email,
+    name: request.body.name,
+    //photo: ,
+    admin_since: {
+      year: request.body.admin_since.year,
+      month: request.body.admin_since.month,
+      day: request.body.admin_since.day,
+      hour: request.body.admin_since.hour,
+      minute: request.body.admin_since.minute,
+      second: request.body.admin_since.second
+    }
+  }
+  console.log("newAdmin: " + newAdmin);
+  database.collection('admin').insertOne(newAdmin, (err,result)=>{
+      if (err) throw err;
+  });
+});
+//EDIT USER
 
 // start server
 
