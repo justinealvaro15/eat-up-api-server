@@ -70,6 +70,15 @@ api.get('/api/shops/newest', (request, response) => {
   })
 });
 
+//// GET SHOP WITH HIGHEST SHOP ID
+api.get('/api/shops/highest', (request, response) => {
+  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(1).toArray((err, result) => {
+    if (err) throw err;
+    console.log(result);
+    response.send(result);
+  })
+});
+
 //// GET INFORMATION OF SHOP
 api.get('/api/shops/:shopId', (request, response) => {
   const query = {
@@ -77,6 +86,19 @@ api.get('/api/shops/:shopId', (request, response) => {
   }
   database.collection('shops').find(query).toArray((err, result) => {
     if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+//// GET SHOPS BY LOCATION
+api.get('/api/location/:bldgId', (request, response) => {
+  const query = {
+    id: request.params.bldgId
+  }
+  database.collection('location-search').find(query).toArray((err, result) => {
+    if (err) throw err;
+    console.log(result);
 
     response.send(result);
   })
@@ -164,19 +186,6 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
     } else {
       response.err(`No shop with id ${request.params.shopId} was found`);
     }
-  })
-});
-
-//// GET SHOPS BY LOCATION
-api.get('/api/location/:bldgId', (request, response) => {
-  const query = {
-    id: request.params.bldgId
-  }
-  database.collection('location-search').find(query).toArray((err, result) => {
-    if (err) throw err;
-    console.log(result);
-
-    response.send(result);
   })
 });
 
