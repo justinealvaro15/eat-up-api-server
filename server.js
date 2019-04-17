@@ -4,7 +4,6 @@ const api = express();
 const cors = require('cors');
 const moment = require('moment');
 const bodyParser = require('body-parser');
-// create connection to database
 const dbUsername = 'admin';
 const dbPassword = 'admin123';
 let database;
@@ -26,6 +25,7 @@ api.use(function (req, res, next) {
 
   next();
 })
+api.use(bodyParser.json({limit: '50mb', extended: true}));
 
 // configure routes for api
 
@@ -36,6 +36,13 @@ api.get('/api/users', (request, response) => {
 
     response.send(result);
   })
+});
+
+//// ADD SHOP
+api.post('/api/add_shop', (request, response) => {
+  database.collection('shops').insertOne(request.body, (err, result) => {
+    if(err) throw err;
+  });
 });
 
 //// GET ALL SHOPS
@@ -69,7 +76,7 @@ api.get('/api/shops/newest', (request, response) => {
 api.get('/api/shops/highest', (request, response) => {
   database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(1).toArray((err, result) => {
     if (err) throw err;
-    console.log(result);
+    // console.log(result);
     response.send(result);
   })
 });
@@ -100,7 +107,7 @@ api.get('/api/location/:bldgId', (request, response) => {
 });
 
 //// EDIT MENU ITEM
-api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
+api.put('/api/shops/:shopId/food', (request, response) => {
   console.log(request.params);
   console.log(request.body);
 
@@ -138,7 +145,7 @@ api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
 });
 
 //// ADD MENU ITEM
-api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
+api.post('/api/shops/:shopId/food', (request, response) => {
   const query = {
     fe_id: request.params.shopId
   }
@@ -226,7 +233,7 @@ function updateShopRating(shopId) {
 };
 
 //// ADD REVIEW
-api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
+api.post('/api/reviews/:shopId', (request, response) => {
 
   const newReview = {
     user_id: request.body.user.id,
@@ -248,7 +255,7 @@ api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
 });
 
 //// EDIT REVIEW
-api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
+api.put('/api/reviews/:shopId', (request, response) => {
   // console.log(request.params);
   console.log(request.body);
 
@@ -293,7 +300,7 @@ api.get('/api/admin', (request, response) => {
 });
 
 //// ADD ADMIN
-api.post('/api/admin', bodyParser.json(), (request,response)=> {
+api.post('/api/admin', (request,response)=> {
   const newAdmin = {
     email: request.body.email,
     name: request.body.name,
