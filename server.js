@@ -29,6 +29,15 @@ api.use(function (req, res, next) {
 
 // configure routes for api
 
+//// GET USERS 
+api.get('/api/users', (request, response) => {
+  database.collection('users').find().toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
 //// GET ALL SHOPS
 api.get('/api/shops', (request, response) => {
   database.collection('shops').find().toArray((err, result) => {
@@ -38,34 +47,10 @@ api.get('/api/shops', (request, response) => {
   })
 });
 
-////GET USERS 
-api.get('/api/users', (request, response) => {
-  database.collection('users').find().toArray((err, result) => {
-    if (err) throw err;
-
-    response.send(result);
-  })
-});
-
-
 //// GET SHOPS SORTED BY RATINGS
 api.get('/api/shops/topten', (request, response) => {
   database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
     if (err) throw err;
-
-    // result.sort((shopA, shopB) => {
-    //   shopA.fe_avg_rating = shopA.fe_avg_rating || 0;
-    //   shopB.fe_avg_rating = shopB.fe_avg_rating || 0;
-
-    //   if (shopA.fe_avg_rating > shopB.fe_avg_rating) {
-    //     return -1;
-    //   }
-    //   if (shopA.fe_avg_rating < shopB.fe_avg_rating) {
-    //     return 1;
-    //   }
-
-    //   return 0;
-    // });
 
     response.send(result);
   })
@@ -297,7 +282,8 @@ api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
     }
   )
 });
-////GET ADMIN
+
+//// GET ADMIN
 api.get('/api/admin', (request, response) => {
   database.collection('admin').find().toArray((err, result) => {
     if (err) throw err;
@@ -305,7 +291,8 @@ api.get('/api/admin', (request, response) => {
     response.send(result);
   })
 });
-//ADD ADMIN
+
+//// ADD ADMIN
 api.post('/api/admin', bodyParser.json(), (request,response)=> {
   const newAdmin = {
     email: request.body.email,
@@ -325,7 +312,10 @@ api.post('/api/admin', bodyParser.json(), (request,response)=> {
       if (err) throw err;
   });
 });
-//EDIT USER
+
+//// EDIT USER
+
+
 
 // start server
 
