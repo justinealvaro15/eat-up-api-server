@@ -239,7 +239,6 @@ api.post('/api/reviews/:shopId', (request, response) => {
     user_id: request.body.user.id,
     fe_id: request.params.shopId,
     firstName: request.body.user.firstName,
-    lastName: request.body.user.lastName,
     photoUrl: request.body.user.photoUrl,
     rating: request.body.addedReview.rating,
     review: request.body.addedReview.review,
