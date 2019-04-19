@@ -102,8 +102,7 @@ api.get('/api/shops/highest', (request, response) => {
 //// GET INFORMATION OF SHOP
 api.get('/api/shops/:shopId', (request, response) => {
   const query = {
-    fe_id: request.params.shopId,
-    active: true
+    fe_id: request.params.shopId
   }
   database.collection('shops').find(query).toArray((err, result) => {
     if (err) throw err;
