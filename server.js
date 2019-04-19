@@ -45,7 +45,7 @@ api.post('/api/add_shop', (request, response) => {
   });
 });
 
-//// GET ALL SHOPS
+//// GET ALL SHOPS (admin)
 api.get('/api/shops', (request, response) => {
   database.collection('shops').find().toArray((err, result) => {
     if (err) throw err;
@@ -54,9 +54,24 @@ api.get('/api/shops', (request, response) => {
   })
 });
 
+//// GET SHOPS DISPLAY
+api.get('/api/shops/display', (request, response) => {
+  const query = {
+    active: true
+  }
+  database.collection('shops').find(query).toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
 //// GET SHOPS SORTED BY RATINGS
 api.get('/api/shops/topten', (request, response) => {
-  database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
+  const query = {
+    active: true
+  }
+  database.collection('shops').find(query).sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
     if (err) throw err;
 
     response.send(result);
@@ -65,7 +80,10 @@ api.get('/api/shops/topten', (request, response) => {
 
 //// GET SHOPS SORTED BY SHOP ID
 api.get('/api/shops/newest', (request, response) => {
-  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
+  const query = {
+    active: true
+  }
+  database.collection('shops').find(query).sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
     if (err) throw err;
 
     response.send(result);
@@ -84,7 +102,8 @@ api.get('/api/shops/highest', (request, response) => {
 //// GET INFORMATION OF SHOP
 api.get('/api/shops/:shopId', (request, response) => {
   const query = {
-    fe_id: request.params.shopId
+    fe_id: request.params.shopId,
+    active: true
   }
   database.collection('shops').find(query).toArray((err, result) => {
     if (err) throw err;
