@@ -45,6 +45,27 @@ api.post('/api/add_shop', (request, response) => {
   });
 });
 
+//// DEACTIVATE SHOP
+api.put('/api/admin/deactivate/shop/:shopId', (request, response) => {
+  const query = {
+    fe_id: request.params.shopId
+  }
+
+  console.log(request.body.active);
+
+  database.collection('shops').updateOne(
+    query,
+    {
+      $set: {
+        "active": request.body.active
+      }
+    },
+    (result) => {
+      response.send(result);
+    }
+  );
+});
+
 //// GET ALL SHOPS (admin)
 api.get('/api/shops', (request, response) => {
   database.collection('shops').find().toArray((err, result) => {
