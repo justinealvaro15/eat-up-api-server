@@ -299,8 +299,9 @@ api.get('/api/admin', (request, response) => {
 //ADD ADMIN
 api.post('/api/admin', bodyParser.json(), (request,response)=> {
   const newAdmin = {
-    email: request.body.email,
-    name: request.body.name,
+    user_id: request.body.user_id,
+    first_name: request.body.first_name,
+    last_name: request.body.last_name,
     //photo: ,
     admin_since: {
       year: request.body.admin_since.year,
@@ -316,8 +317,89 @@ api.post('/api/admin', bodyParser.json(), (request,response)=> {
       if (err) throw err;
   });
 });
-//EDIT USER
+//DELETE ADMIN
+api.delete('/api/admin/:user_id', (request,response)=> {
+  database.collection('admin').deleteOne(
+    {user_id: request.params.user_id}
+  );
+});
 
+//ADD USER
+api.post('/api/users', bodyParser.json(), (request,response)=> {
+  const newUser = {
+    user_id: request.body.user_id,
+    first_name: request.body.first_name,
+    last_name: request.body.last_name,
+    //photo: ,
+    date_joined: {
+      year: request.body.user_since.year,
+      month: request.body.user_since.month,
+      day: request.body.user_since.day,
+      hour: request.body.user_since.hour,
+      minute: request.body.user_since.minute,
+      second: request.body.user_since.second
+    },
+    last_active: {
+      year: request.body.last_active.year,
+      month: request.body.last_active.month,
+      day: request.body.last_active.day,
+      hour: request.body.last_active.hour,
+      minute: request.body.last_active.minute,
+      second: request.body.last_active.second
+    },
+    removed: {
+      removed_by: request.body.removed_by,
+      removed_on: {
+        year: request.body.last_active.year,
+        month: request.body.removed_on.month,
+        day: request.body.removed_on.day,
+        hour: request.body.removed_on.hour,
+        minute: request.body.removed_on.minute,
+        second: request.body.removed_on.second
+      }
+    },
+    reviews_made: request.body.reviews_made,
+    active: request.body.active,
+    isAdmin: request.body.isAdmin
+  }
+
+  console.log("newUser: " + newUser);
+  database.collection('users').insertOne(newUser, (err,result)=>{
+      if (err) throw err;
+  });
+});
+
+//EDIT USER
+  //active to inactive and vice versa
+api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
+  
+  const query = {
+    user_id : request.params.user_id
+  }
+  if (request.body.active) {
+    database.collection('users').updateOne(
+      {user_id : request.params.user_id},
+      {
+        $set: {
+          active: request.body.active
+        }
+      }
+    )
+  }
+
+  if (request.body.isAdmin) {
+    database.collection('users').updateOne(
+      {user_id : request.params.user_id},
+      {
+        $set: {
+          isAdmin: request.body.isAdmin
+        }
+      }
+    )
+  }
+  
+
+});
 // start server
 
 api.listen(serverPort, '0.0.0.0');
