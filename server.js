@@ -39,10 +39,30 @@ api.get('/api/users', (request, response) => {
 });
 
 //// ADD SHOP
-api.post('/api/add_shop', (request, response) => {
+api.post('/api/admin/add/shop', (request, response) => {
   database.collection('shops').insertOne(request.body, (err, result) => {
     if(err) throw err;
   });
+});
+
+//// EDIT SHOP
+api.put('/api/admin/edit/shop/:shopId', (request, response) => {
+  const query = {
+    fe_id: request.params.shopId
+  }
+
+  const update = request.body.updatedShop;
+  console.log(update);
+
+  database.collection('shops').updateOne(
+    query,
+    {
+      $set: update
+    },
+    (result) => {
+      response.send(result);
+    }
+  );
 });
 
 //// DEACTIVATE SHOP
