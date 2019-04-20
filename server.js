@@ -4,7 +4,6 @@ const api = express();
 const cors = require('cors');
 const moment = require('moment');
 const bodyParser = require('body-parser');
-// create connection to database
 const dbUsername = 'admin';
 const dbPassword = 'admin123';
 let database;
@@ -26,19 +25,11 @@ api.use(function (req, res, next) {
 
   next();
 })
+api.use(bodyParser.json({limit: '50mb', extended: true}));
 
 // configure routes for api
 
-//// GET ALL SHOPS
-api.get('/api/shops', (request, response) => {
-  database.collection('shops').find().toArray((err, result) => {
-    if (err) throw err;
-
-    response.send(result);
-  })
-});
-
-////GET USERS 
+//// GET USERS 
 api.get('/api/users', (request, response) => {
   database.collection('users').find().toArray((err, result) => {
     if (err) throw err;
@@ -47,25 +38,82 @@ api.get('/api/users', (request, response) => {
   })
 });
 
+//// ADD SHOP
+api.post('/api/admin/add/shop', (request, response) => {
+  database.collection('shops').insertOne(request.body, (err, result) => {
+    if(err) throw err;
+  });
+});
+
+//// EDIT SHOP
+api.put('/api/admin/edit/shop/:shopId', (request, response) => {
+  const query = {
+    fe_id: request.params.shopId
+  }
+
+  const update = request.body.updatedShop;
+  console.log(update);
+
+  database.collection('shops').updateOne(
+    query,
+    {
+      $set: update
+    },
+    (result) => {
+      response.send(result);
+    }
+  );
+});
+
+//// DEACTIVATE SHOP
+api.put('/api/admin/deactivate/shop/:shopId', (request, response) => {
+  const query = {
+    fe_id: request.params.shopId
+  }
+
+  console.log(request.body.active);
+
+  database.collection('shops').updateOne(
+    query,
+    {
+      $set: {
+        "active": request.body.active
+      }
+    },
+    (result) => {
+      response.send(result);
+    }
+  );
+});
+
+//// GET ALL SHOPS (admin)
+api.get('/api/shops', (request, response) => {
+  database.collection('shops').find().toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+//// GET SHOPS DISPLAY
+api.get('/api/shops/display', (request, response) => {
+  const query = {
+    active: true
+  }
+  database.collection('shops').find(query).toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
 
 //// GET SHOPS SORTED BY RATINGS
 api.get('/api/shops/topten', (request, response) => {
-  database.collection('shops').find().sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
+  const query = {
+    active: true
+  }
+  database.collection('shops').find(query).sort({ fe_avg_rating: -1 }).limit(10).toArray((err, result) => {
     if (err) throw err;
-
-    // result.sort((shopA, shopB) => {
-    //   shopA.fe_avg_rating = shopA.fe_avg_rating || 0;
-    //   shopB.fe_avg_rating = shopB.fe_avg_rating || 0;
-
-    //   if (shopA.fe_avg_rating > shopB.fe_avg_rating) {
-    //     return -1;
-    //   }
-    //   if (shopA.fe_avg_rating < shopB.fe_avg_rating) {
-    //     return 1;
-    //   }
-
-    //   return 0;
-    // });
 
     response.send(result);
   })
@@ -73,9 +121,21 @@ api.get('/api/shops/topten', (request, response) => {
 
 //// GET SHOPS SORTED BY SHOP ID
 api.get('/api/shops/newest', (request, response) => {
-  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
+  const query = {
+    active: true
+  }
+  database.collection('shops').find(query).sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(10).toArray((err, result) => {
     if (err) throw err;
 
+    response.send(result);
+  })
+});
+
+//// GET SHOP WITH HIGHEST SHOP ID
+api.get('/api/shops/highest', (request, response) => {
+  database.collection('shops').find().sort({ fe_id: -1 }).collation({locale: "en_US", numericOrdering: true}).limit(1).toArray((err, result) => {
+    if (err) throw err;
+    // console.log(result);
     response.send(result);
   })
 });
@@ -92,8 +152,21 @@ api.get('/api/shops/:shopId', (request, response) => {
   })
 });
 
+//// GET SHOPS BY LOCATION
+api.get('/api/location/:bldgId', (request, response) => {
+  const query = {
+    id: request.params.bldgId
+  }
+  database.collection('location-search').find(query).toArray((err, result) => {
+    if (err) throw err;
+    console.log(result);
+
+    response.send(result);
+  })
+});
+
 //// EDIT MENU ITEM
-api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
+api.put('/api/shops/:shopId/food', (request, response) => {
   console.log(request.params);
   console.log(request.body);
 
@@ -131,7 +204,7 @@ api.put('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
 });
 
 //// ADD MENU ITEM
-api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
+api.post('/api/shops/:shopId/food', (request, response) => {
   const query = {
     fe_id: request.params.shopId
   }
@@ -177,19 +250,6 @@ api.post('/api/shops/:shopId/food', bodyParser.json(), (request, response) => {
   })
 });
 
-//// GET SHOPS BY LOCATION
-api.get('/api/location/:bldgId', (request, response) => {
-  const query = {
-    id: request.params.bldgId
-  }
-  database.collection('location-search').find(query).toArray((err, result) => {
-    if (err) throw err;
-    console.log(result);
-
-    response.send(result);
-  })
-});
-
 //// GET REVIEWS
 api.get('/api/reviews/:shopId', (request, response) => {
   const query = {
@@ -232,13 +292,12 @@ function updateShopRating(shopId) {
 };
 
 //// ADD REVIEW
-api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
+api.post('/api/reviews/:shopId', (request, response) => {
 
   const newReview = {
     user_id: request.body.user.id,
     fe_id: request.params.shopId,
     firstName: request.body.user.firstName,
-    lastName: request.body.user.lastName,
     photoUrl: request.body.user.photoUrl,
     rating: request.body.addedReview.rating,
     review: request.body.addedReview.review,
@@ -254,7 +313,7 @@ api.post('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
 });
 
 //// EDIT REVIEW
-api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
+api.put('/api/reviews/:shopId', (request, response) => {
   // console.log(request.params);
   console.log(request.body);
 
@@ -288,7 +347,8 @@ api.put('/api/reviews/:shopId', bodyParser.json(), (request, response) => {
     }
   )
 });
-////GET ADMIN
+
+//// GET ADMIN
 api.get('/api/admin', (request, response) => {
   database.collection('admin').find().toArray((err, result) => {
     if (err) throw err;
@@ -296,8 +356,9 @@ api.get('/api/admin', (request, response) => {
     response.send(result);
   })
 });
-//ADD ADMIN
-api.post('/api/admin', bodyParser.json(), (request,response)=> {
+
+//// ADD ADMIN
+api.post('/api/admin', (request,response)=> {
   const newAdmin = {
     user_id: request.body.user_id,
     first_name: request.body.first_name,
@@ -397,7 +458,6 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
       }
     )
   }
-  
 
 });
 // start server
