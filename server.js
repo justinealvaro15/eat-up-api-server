@@ -379,8 +379,9 @@ api.get('/api/admin', (request, response) => {
 //// ADD ADMIN
 api.post('/api/admin', (request,response)=> {
   const newAdmin = {
-    email: request.body.email,
-    name: request.body.name,
+    user_id: request.body.user_id,
+    first_name: request.body.first_name,
+    last_name: request.body.last_name,
     //photo: ,
     admin_since: {
       year: request.body.admin_since.year,
@@ -396,10 +397,119 @@ api.post('/api/admin', (request,response)=> {
       if (err) throw err;
   });
 });
+//DELETE ADMIN
+api.delete('/api/admin/:user_id', (request,response)=> {
+  database.collection('admin').deleteOne(
+    {user_id: request.params.user_id}
+  );
+});
 
-//// EDIT USER
+//ADD USER
+api.post('/api/users', (request,response)=> {
+  const newUser = {
+    user_id: request.body.user_id,
+    first_name: request.body.first_name,
+    last_name: request.body.last_name,
+    photoUrl: request.body.photoUrl,
+    date_joined: {
+      year: request.body.date_joined.year,
+      month: request.body.date_joined.month,
+      day: request.body.date_joined.day,
+      hour: request.body.date_joined.hour,
+      minute: request.body.date_joined.minute,
+      second: request.body.date_joined.second
+    },
+    last_active: {
+      year: request.body.last_active.year,
+      month: request.body.last_active.month,
+      day: request.body.last_active.day,
+      hour: request.body.last_active.hour,
+      minute: request.body.last_active.minute,
+      second: request.body.last_active.second
+    },
+    removed: {
+      removed_by: request.body.removed.removed_by,
+      removed_on: {
+        year: request.body.removed.removed_on.year,
+        month: request.body.removed.removed_on.month,
+        day: request.body.removed.removed_on.day,
+        hour: request.body.removed.removed_on.hour,
+        minute: request.body.removed.removed_on.minute,
+        second: request.body.removed.removed_on.second
+      }
+    },
+    reviews_made: request.body.reviews_made,
+    active: request.body.active,
+    isAdmin: request.body.isAdmin
+  }
 
+  database.collection('users').insertOne(newUser, (err,result)=>{
+      if (err) throw err;
+  });
+});
 
+//EDIT USER
+  //active to inactive and vice versa
+api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
+  const query = {
+    user_id : request.params.user_id
+  }
+  
+  if (request.body.active!=null) { //for deactivating or reactivating
+    database.collection('users').updateOne(
+      {user_id : request.params.user_id},
+      {
+        $set: {
+          deactivated: {
+            deactivated_by: request.body.deactivated.deactivated_by,
+            deactivated_on: {
+              year:request.body.deactivated.deactivated_on.year,
+              month: request.body.deactivated.deactivated_on.month,
+              day: request.body.deactivated.deactivated_on.day,
+              hour: request.body.deactivated.deactivated_on.hour,
+              minute: request.body.deactivated.deactivated_on.minute,
+              second: request.body.deactivated.deactivated_on.second 
+            }
+          },
+          active: request.body.active
+        }
+      }
+    )
+  }
+
+  if (request.body.isAdmin!=null) { //for identifying whether a user is an admin
+    console.log("in change admin status of user");
+    database.collection('users').updateOne(
+      {user_id : request.params.user_id},
+      {
+        $set: {
+          last_active: {
+            year: request.body.last_active.year,
+            month: request.body.last_active.month,
+            day: request.body.last_active.day,
+            hour: request.body.last_active.hour,
+            minute: request.body.last_active.minute,
+            second: request.body.last_active.second
+          }
+        }
+      }
+    )
+  }
+
+  if (request.body.last_active!=null) {//to update when a user was last active
+    console.log("change last active status");
+    database.collection('users').updateOne(
+      {user_id : request.params.user_id},
+      {
+        $set: {
+          isAdmin: request.body.isAdmin
+        }
+      }
+    )
+
+  }
+
+});
 
 // start server
 
