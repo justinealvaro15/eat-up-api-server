@@ -71,8 +71,6 @@ api.put('/api/admin/deactivate/shop/:shopId', (request, response) => {
     fe_id: request.params.shopId
   }
 
-  console.log(request.body.active);
-
   database.collection('shops').updateOne(
     query,
     {
@@ -373,7 +371,6 @@ api.post('/api/admin', (request,response)=> {
       second: request.body.admin_since.second
     }
   }
-  console.log("newAdmin: " + newAdmin);
   database.collection('admin').insertOne(newAdmin, (err,result)=>{
       if (err) throw err;
   });
@@ -459,7 +456,6 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
   }
 
   if (request.body.isAdmin!=null) { //for identifying whether a user is an admin
-    console.log("in change admin status of user");
     database.collection('users').updateOne(
       {user_id : request.params.user_id},
       {
@@ -478,12 +474,19 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
   }
 
   if (request.body.last_active!=null) {//to update when a user was last active
-    console.log("change last active status");
+
     database.collection('users').updateOne(
       {user_id : request.params.user_id},
       {
         $set: {
-          isAdmin: request.body.isAdmin
+          last_active: {
+            year: request.body.last_active.year,
+            month: request.body.last_active.month,
+            day: request.body.last_active.day, 
+            hour: request.body.last_active.hour,
+            minute: request.body.last_active.minute,
+            day: request.body.last_active.day
+          } 
         }
       }
     )
