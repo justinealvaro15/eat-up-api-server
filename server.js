@@ -42,6 +42,7 @@ api.get('/api/users', (request, response) => {
 api.post('/api/admin/add/shop', (request, response) => {
   database.collection('shops').insertOne(request.body, (err, result) => {
     if(err) throw err;
+    response.send(result);
   });
 });
 
@@ -198,7 +199,16 @@ api.put('/api/shops/:shopId/food', (request, response) => {
     (result) => {
       response.send(result);
     }
-  )
+  );
+
+  database.collection('shops').updateOne(
+    query,
+    {
+      $set: {
+        lastUpdatedMenu: moment().format('LL')
+      }
+    }
+  );
 });
 
 //// ADD MENU ITEM
@@ -240,11 +250,20 @@ api.post('/api/shops/:shopId/food', (request, response) => {
         }, () => {
           response.send(result);
         }
-      )
+      );
       
     } else {
       response.err(`No shop with id ${request.params.shopId} was found`);
     }
+
+    database.collection('shops').updateOne(
+      query,
+      {
+        $set: {
+          lastUpdatedMenu: moment().format('LL')
+        }
+      }
+    );
   })
 });
 
