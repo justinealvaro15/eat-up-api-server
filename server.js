@@ -386,19 +386,19 @@ api.delete('/api/admin/:user_id', (request,response)=> {
 });
 
 //ADD USER
-api.post('/api/users', bodyParser.json(), (request,response)=> {
+api.post('/api/users', (request,response)=> {
   const newUser = {
     user_id: request.body.user_id,
     first_name: request.body.first_name,
     last_name: request.body.last_name,
-    //photo: ,
+    photoUrl: request.body.photoUrl,
     date_joined: {
-      year: request.body.user_since.year,
-      month: request.body.user_since.month,
-      day: request.body.user_since.day,
-      hour: request.body.user_since.hour,
-      minute: request.body.user_since.minute,
-      second: request.body.user_since.second
+      year: request.body.date_joined.year,
+      month: request.body.date_joined.month,
+      day: request.body.date_joined.day,
+      hour: request.body.date_joined.hour,
+      minute: request.body.date_joined.minute,
+      second: request.body.date_joined.second
     },
     last_active: {
       year: request.body.last_active.year,
@@ -409,14 +409,14 @@ api.post('/api/users', bodyParser.json(), (request,response)=> {
       second: request.body.last_active.second
     },
     removed: {
-      removed_by: request.body.removed_by,
+      removed_by: request.body.removed.removed_by,
       removed_on: {
-        year: request.body.last_active.year,
-        month: request.body.removed_on.month,
-        day: request.body.removed_on.day,
-        hour: request.body.removed_on.hour,
-        minute: request.body.removed_on.minute,
-        second: request.body.removed_on.second
+        year: request.body.removed.removed_on.year,
+        month: request.body.removed.removed_on.month,
+        day: request.body.removed.removed_on.day,
+        hour: request.body.removed.removed_on.hour,
+        minute: request.body.removed.removed_on.minute,
+        second: request.body.removed.removed_on.second
       }
     },
     reviews_made: request.body.reviews_made,
@@ -424,7 +424,6 @@ api.post('/api/users', bodyParser.json(), (request,response)=> {
     isAdmin: request.body.isAdmin
   }
 
-  console.log("newUser: " + newUser);
   database.collection('users').insertOne(newUser, (err,result)=>{
       if (err) throw err;
   });
@@ -433,22 +432,53 @@ api.post('/api/users', bodyParser.json(), (request,response)=> {
 //EDIT USER
   //active to inactive and vice versa
 api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
-  
   const query = {
     user_id : request.params.user_id
   }
-  if (request.body.active) {
+  
+  if (request.body.active!=null) { //for deactivating or reactivating
     database.collection('users').updateOne(
       {user_id : request.params.user_id},
       {
         $set: {
+          deactivated: {
+            deactivated_by: request.body.deactivated.deactivated_by,
+            deactivated_on: {
+              year:request.body.deactivated.deactivated_on.year,
+              month: request.body.deactivated.deactivated_on.month,
+              day: request.body.deactivated.deactivated_on.day,
+              hour: request.body.deactivated.deactivated_on.hour,
+              minute: request.body.deactivated.deactivated_on.minute,
+              second: request.body.deactivated.deactivated_on.second 
+            }
+          },
           active: request.body.active
         }
       }
     )
   }
 
-  if (request.body.isAdmin) {
+  if (request.body.isAdmin!=null) { //for identifying whether a user is an admin
+    console.log("in change admin status of user");
+    database.collection('users').updateOne(
+      {user_id : request.params.user_id},
+      {
+        $set: {
+          last_active: {
+            year: request.body.last_active.year,
+            month: request.body.last_active.month,
+            day: request.body.last_active.day,
+            hour: request.body.last_active.hour,
+            minute: request.body.last_active.minute,
+            second: request.body.last_active.second
+          }
+        }
+      }
+    )
+  }
+
+  if (request.body.last_active!=null) {//to update when a user was last active
+    console.log("change last active status");
     database.collection('users').updateOne(
       {user_id : request.params.user_id},
       {
@@ -457,9 +487,11 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
         }
       }
     )
+
   }
 
 });
+
 // start server
 
 api.listen(serverPort, '0.0.0.0');
