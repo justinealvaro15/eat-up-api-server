@@ -29,6 +29,24 @@ api.use(bodyParser.json({limit: '50mb', extended: true}));
 
 // configure routes for api
 
+//UPDATE TOTAL VIEWS OF SITE (added every load of studproj.up.edu.ph/eat-up)
+api.put('/api/page_views:name',(request, response)=> {
+  console.log("in increase")
+  database.collection('page_views').updateOne(
+    {name: request.body.name},
+    {$inc: {count: 1} }
+  )
+});
+//// GET TOTAL VIEWS OF HOME PAGE
+api.get('/api/page_views', (request, response) => {
+  console.log("in getting the page view");
+  database.collection('page_views').find().toArray((err, result) => { 
+    if (err) throw err;
+    response.send(result);//RESULT EXISTS
+  })
+});
+
+
 //// GET USERS 
 api.get('/api/users', (request, response) => {
   database.collection('users').find().toArray((err, result) => {
