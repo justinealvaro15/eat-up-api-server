@@ -111,7 +111,7 @@ api.get('/api/shops', (request, response) => {
   })
 });
 
-//// GET SHOPS DISPLAY
+//// GET ALL SHOPS DISPLAY
 api.get('/api/shops/display', (request, response) => {
   const query = {
     active: true
@@ -284,7 +284,16 @@ api.post('/api/shops/:shopId/food', (request, response) => {
   })
 });
 
-//// GET REVIEWS
+//// GET ALL REVIEWS
+api.get('/api/reviews', (request, response) => {
+  database.collection('reviews').find().toArray((err, result) => {
+    if (err) throw err;
+
+    response.send(result);
+  })
+});
+
+//// GET REVIEWS OF A SHOP
 api.get('/api/reviews/:shopId', (request, response) => {
   const query = {
     fe_id: request.params.shopId
@@ -411,14 +420,15 @@ api.post('/api/admin', (request,response)=> {
       if (err) throw err;
   });
 });
-//DELETE ADMIN
+
+//// DELETE ADMIN
 api.delete('/api/admin/:user_id', (request,response)=> {
   database.collection('admin').deleteOne(
     {user_id: request.params.user_id}
   );
 });
 
-//ADD USER
+//// ADD USER
 api.post('/api/users', (request,response)=> {
   const newUser = {
     user_id: request.body.user_id,
@@ -462,7 +472,7 @@ api.post('/api/users', (request,response)=> {
   });
 });
 
-//EDIT USER
+//// EDIT USER
   //active to inactive and vice versa
 api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
   const query = {
