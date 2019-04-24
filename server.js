@@ -46,12 +46,11 @@ api.get('/api/page_views', (request, response) => {
   })
 });
 
-
 //// GET USERS 
 api.get('/api/users', (request, response) => {
   database.collection('users').find().toArray((err, result) => {
     if (err) throw err;
-
+    
     response.send(result);
   })
 });
@@ -124,7 +123,7 @@ api.get('/api/shops/display', (request, response) => {
   })
 });
 
-//// GET SHOPS SORTED BY RATINGS
+//// GET SHOPS SORTED BY 00GS
 api.get('/api/shops/topten', (request, response) => {
   const query = {
     active: true
