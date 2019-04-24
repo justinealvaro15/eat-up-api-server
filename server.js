@@ -479,14 +479,7 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
       {user_id : request.params.user_id},
       {
         $set: {
-          last_active: {
-            year: request.body.last_active.year,
-            month: request.body.last_active.month,
-            day: request.body.last_active.day,
-            hour: request.body.last_active.hour,
-            minute: request.body.last_active.minute,
-            second: request.body.last_active.second
-          }
+          isAdmin: request.body.isAdmin
         }
       }
     )
