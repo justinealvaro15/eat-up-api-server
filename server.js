@@ -31,7 +31,6 @@ api.use(bodyParser.json({limit: '50mb', extended: true}));
 
 //UPDATE TOTAL VIEWS OF SITE (added every load of studproj.up.edu.ph/eat-up)
 api.put('/api/page_views:name',(request, response)=> {
-  console.log("in increase")
   database.collection('page_views').updateOne(
     {name: request.body.name},
     {$inc: {count: 1} }
@@ -39,7 +38,6 @@ api.put('/api/page_views:name',(request, response)=> {
 });
 //// GET TOTAL VIEWS OF HOME PAGE
 api.get('/api/page_views', (request, response) => {
-  console.log("in getting the page view");
   database.collection('page_views').find().toArray((err, result) => { 
     if (err) throw err;
     response.send(result);//RESULT EXISTS
@@ -228,6 +226,7 @@ api.put('/api/shops/:shopId/food', (request, response) => {
   );
 });
 
+
 //// ADD MENU ITEM
 api.post('/api/shops/:shopId/food', (request, response) => {
   const query = {
@@ -251,6 +250,7 @@ api.post('/api/shops/:shopId/food', (request, response) => {
         c_name: request.body.addedMenu.name,
         price: request.body.addedMenu.price,
         c_avg_rating: 0,
+        user_id: request.body.user.user_id,
         username: request.body.user.name
       }
 
@@ -406,7 +406,7 @@ api.post('/api/admin', (request,response)=> {
     user_id: request.body.user_id,
     first_name: request.body.first_name,
     last_name: request.body.last_name,
-    //photo: ,
+    photoUrl:request.body.photoUrl ,
     admin_since: {
       year: request.body.admin_since.year,
       month: request.body.admin_since.month,
@@ -478,7 +478,7 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
   const query = {
     user_id : request.params.user_id
   }
-  
+  console.log(request.body.isAdmin);
   if (request.body.active!=null) { //for deactivating or reactivating
     database.collection('users').updateOne(
       {user_id : request.params.user_id},
@@ -502,6 +502,7 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
   }
 
   if (request.body.isAdmin!=null) { //for identifying whether a user is an admin
+    console.log("in update isAdmin status");
     database.collection('users').updateOne(
       {user_id : request.params.user_id},
       {
@@ -513,7 +514,7 @@ api.put('/api/users/:user_id', bodyParser.json(), (request,response)=> {
   }
 
   if (request.body.last_active!=null) {//to update when a user was last active
-
+ 
     database.collection('users').updateOne(
       {user_id : request.params.user_id},
       {
